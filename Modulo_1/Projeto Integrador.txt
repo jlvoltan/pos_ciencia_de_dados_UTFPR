@@ -1,0 +1,8 @@
+O Projeto Integrador visa aplicar a parte teórica aprendida nas disciplinas do módulo:
+
+1 - Ambiente de Ensino e Aprendizagem a Distância (2020-2)
+2 - Análise e Modelagem de Banco de Dados (2020-2)
+3 - Introdução à Análise e Ciência de Dados (2020-2)
+4 - Introdução ao Gerenciamento de Banco de Dados (2020-2)
+
+
