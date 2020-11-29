@@ -1,0 +1,25 @@
+A atividade tinha como proposta:
+Entrega exercícios - Semana 8
+
+Esta atividade tem como objetivo praticar comandos de visualização de dados usando o pacote ggplot2 do R.
+
+Considerando a base de dados SISAGUA, realize uma visualização gráfica apresentando:
+
+1 - O que o gráfico deve mostrar? Formule o enunciado do gráfico - note que você deverá preparar o conjunto de dados SISAGUA para refletir o que você quer mostrar no seu gráfico.
+
+2 - O código R necessário para preparar os dados
+
+3 - O código R necessário para fazer o gráfico
+
+
+## Dataset
+
+A base de dados refere-se aos dados do monitoramente da qualidade da água realizado pelo prestador de serviço em frequência inferior à mensal. Ela está disponível no Portal Brasileiro de Dados Abertos.
+
+Encontra-se disponível em: https://dados.gov.br/dataset/sisagua-controle-mensal-resultado-de-analises
+
+Há ainda na descrição do site:
+"No dia 15 de cada mês (a exceção dos meses de fevereiro e agosto) deverão ser realizadas as cargas com dados de todos os meses do ano corrente. Nos dias 15/02 e 15/08 (de 6 em 6 meses) deverão ser dadas as cargas completas, de todos os meses de todos os anos (2014 ao ano corrente), dos últimos cinco anos."
+
+- O dataset encontra-se em: https://dados.gov.br/dataset/sisagua-controle-mensal-resultado-de-analises/resource/3e3ff5ad-ddeb-4bae-8bf5-7317d7514180
+- Há ainda um Dicionário de dados, onde se explicam as variáveis utilizadas.
