@@ -1,0 +1,191 @@
+---
+title: "Exercicio_voltan"
+author: "Jose Luiz Neves Voltan"
+date: "29/11/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Descrição
+
+Considerando a base de dados SISAGUA, realize uma visualização gráfica apresentando:
+
+1 - O que o gráfico deve mostrar? Formule o enunciado do gráfico - note que você deverá preparar o conjunto de dados SISAGUA para refletir o que você quer mostrar no seu gráfico;
+
+2 - O código R necessário para preparar os dados;
+
+3 - O código R necessário para fazer o gráfico.
+
+
+## Sobre o Dataset
+
+- "A base de dados se refere ao monitoramente da qualidade da água realizado pelo prestador de serviço em frequência inferior à mensal. Ela está disponível no Portal Brasileiro de Dados Abertos".
+
+
+```{r}
+#Importação do dataset e de bibliotecas
+library(tidyverse)
+analises_agua <- read_csv2("F:\\Ciencia de dados\\Ciencia de dados _ UTFPR\\1 - modulo1\\2-cienc dados\\semana 9\\5controle_mensal_resultado_analises_total.csv",locale = locale(encoding = "ISO-8859-1"))
+```
+
+## PERGUNTAS NORTEADORAS DO TRABALHO
+
+### **Questão 1**
+ 1- No estado do Rio de Janeiro, considerando o ano maior que 2015, quais são os parâmetros ( Escherichia coli-Cryptosporidium- Giárdia- Vírus- Clorofila-a- Cianobactérias) médios que apareceram na água (RESULTADO)?
+ Perceba que estamos interessados na quantidade média do resultado onde aquele parâmetro testou positivo.
+ 
+ 2- Podemos ainda perguntar no sub conjunto mencionado qual a quantidade de cada Categoria do Manancial de Superfície, em relação a cada amostra coletada.
+
+### **Questão 2**
+
+#### Preparação dos dados:
+
+- Observação inicial do dataset:
+
+```{r}
+head(analises_agua)
+tail(analises_agua)
+
+#Quantidade de linhas e colunas
+dim(analises_agua)
+glimpse(analises_agua)
+```
+
+- Iremos filtrar nosso dataset para o universo proposto (Estado **Rio de Janeiro** e coleta posterior a **2015**)
+
+```{r}
+analises_agua_RJ <- filter(analises_agua,SIGLA_UF=="RJ" & ANO>2015 )
+```
+
+
+#### Tratamento da **1ª Análise**
+
+```{r}
+analises_agua_RJ$PARÂMETRO <- str_to_title(analises_agua_RJ$PARÂMETRO)
+```
+
+- Iremos agrupar nosso universo
+
+```{r}
+analises_agua_RJ_agrupado <-group_by(analises_agua_RJ,PARÂMETRO)
+```
+
+
+- Iremos substituir a vírgula pelo ponto
+```{r}
+analises_agua_RJ_agrupado$RESULTADO <-  str_replace(analises_agua_RJ_agrupado$RESULTADO,",",".")
+```
+
+
+- No dataset em alguns momentos a não presença do parâmetro aparece como 0, ou Ausente ou ainda AUSENTE. Por isso, na converção para numeric, surgem NAs referentes as Strings "Ausente" e "AUSENTE".Iremos tratar esses casos:
+
+```{r}
+analises_agua_RJ_agrupado$RESULTADO <- str_replace(analises_agua_RJ_agrupado$RESULTADO,str_to_upper("AUSENTE"),"0")
+analises_agua_RJ_agrupado$RESULTADO <- as.numeric(analises_agua_RJ_agrupado$RESULTADO)
+```
+
+
+- Perceba que mesmo assim ainda existem outros casos de NA
+
+```{r}
+sum(is.na(analises_agua_RJ_agrupado$RESULTADO))
+```
+
+- Sumarizando os dados
+
+```{r}
+Analise_resultado <- summarise(analises_agua_RJ_agrupado,
+                                  Média = mean(as.numeric(RESULTADO), na.rm = TRUE))
+
+```
+
+### **Questão 3**
+
+#### Gráficos da **1ª Análise**
+
+- Iremos inicialmente observar o resultado médio da presença dos parâmetros através de um gráfico de barras
+
+```{r}
+ggplot(data = Analise_resultado) +
+  geom_col(mapping = aes(x = PARÂMETRO, y = Média,
+                         group = PARÂMETRO, fill = PARÂMETRO),
+           position = position_dodge()) +
+  labs(x = "Parâmetro", y = "Quantidade Média Resultado", title = "Resultado médio dos parâmetros no Estado do Rio de Janeiro posteriores a 2015") +
+  theme_light() +
+  scale_y_continuous(n.breaks = 10)+
+  scale_x_discrete(labels = c("Cianobactérias" = "Cianobactérias","Clorofila-A" = "Clorofila-A",
+  "Cryptosporidium" = "Cryptosporidium","Escherichia Coli" = "E. Coli","Giardia" = "Giardia", "Vírus"="Vírus"))+
+  theme_minimal()
+```
+
+- Observando o resultado médio da presença dos parâmetros através de um gráfico de pontos
+```{r}
+p <- ggplot(analises_agua_RJ_agrupado, aes(x=PARÂMETRO, y=RESULTADO)) + 
+  geom_point(na.rm = TRUE,aes(colour = PARÂMETRO))+
+  labs(x = "Parâmetro", y = "Resultado observado", title = "Análise Água no Estado do RJ a partir de 2015")+
+    scale_x_discrete(labels = c("Cianobactérias" = "Cianobactérias","Clorofila-A" = "Clorofila-A",
+  "Cryptosporidium" = "Crypt.","Escherichia Coli" = "E. Coli","Giardia" = "Giardia", "Vírus"="Vírus"))+
+  theme_minimal()
+p
+```
+
+- O gráfico permite obervar os valores obtidos como resultado para os parâmetros apresentados 
+
+### **Questão 2**
+
+#### Tratamento da **2ª Análise**
+
+-Iremos susbtituir os NA por "Desconhecido"
+
+```{r}
+analises_agua_RJ$CATEGORIA_MANANCIAL_SUP[which(is.na(analises_agua_RJ$CATEGORIA_MANANCIAL_SUP))] <- "Desconhecido"
+```
+
+
+- Deixar a 1ª letra maiuscula das Categorias de Mananciais (*CATEGORIA_MANANCIAL_SUP*)
+
+```{r}
+analises_agua_RJ$CATEGORIA_MANANCIAL_SUP <- str_to_title(analises_agua_RJ$CATEGORIA_MANANCIAL_SUP)
+```
+
+- Contando as ocorrências das categorias
+
+```{r}
+analises_agua_RJ_manacial_agp <- count(analises_agua_RJ,CATEGORIA_MANANCIAL_SUP) %>%
+                                  arrange(n)
+```
+
+- Utilizando um Factor com levels para ordenar as categorias de mananciais no gráfico
+
+```{r}
+analises_agua_RJ_manacial_agp$CATEGORIA_MANANCIAL_SUP <- factor(analises_agua_RJ_manacial_agp$CATEGORIA_MANANCIAL_SUP,
+                                                 levels = analises_agua_RJ_manacial_agp$CATEGORIA_MANANCIAL_SUP)
+```
+
+### **Questão 3**
+#### Gráfico da **2ª Análise**
+
+```{r}
+ggplot(data = analises_agua_RJ_manacial_agp) +
+  geom_col(mapping = aes(x = CATEGORIA_MANANCIAL_SUP, y = n ,
+                         group = CATEGORIA_MANANCIAL_SUP, fill = CATEGORIA_MANANCIAL_SUP),
+           position = position_dodge()) +
+  labs(x = "Categoria do Manancial", y = "Quantidade", title = "Quantidade de mananciais por tipo em relação as amostras coletadas - RJ") +
+  theme_light() +
+  scale_y_continuous(n.breaks = 10)+
+    scale_x_discrete(labels = c("Acude" = "Açude","Lago" = "Lago",
+  "Canal" = "Canal","Ribeirao" = "Rib.","Barragem" = "B.", "Lagoa"="Lagoa","Represa"="Rep","Desconhecido"="Desc", "Corrego"="Corrego","Rio"="Rio"))+
+  theme_minimal()
+```
+
+- O Gráfico mostra que a maioria das amostras é coletada em rios 
+
+
+
+
+
