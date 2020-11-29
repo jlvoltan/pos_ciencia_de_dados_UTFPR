@@ -1,0 +1,1 @@
+A disciplina focou na utilização do R como ferramenta para a análise de dados. 
